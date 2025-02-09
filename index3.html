@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: Bridge to Terabithia</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #44b54c; color: #ffcc00; }
+        .container { max-width: 400px; margin: 50px auto; padding: 20px; background: #42c45c; border-radius: 10px; }
+        .quiz-btn { background: #e5e5e5; color: #1e3a5f; border: none; padding: 10px; margin: 10px; cursor: pointer; border-radius: 5px; display: block; width: 100%; font-weight: bold; }
+        .quiz-btn:hover { background: #e6b800; }
+        .hidden { display: none; }
+        #timer { font-size: 20px; margin: 10px 0; }
+        #explanation { font-size: 16px; margin-top: 10px; color: #ffffff; }
+        #next-btn { background: #008000; color: white; border: none; padding: 10px; margin: 10px; cursor: pointer; border-radius: 5px; display: none; }
+        #next-btn:hover { background: #006400; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Quiz: Bridge to Terabithia</h1>
+        <p id="timer"></p>
+        <p id="question"></p>
+        <div id="answers"></div>
+        <p id="explanation" class="hidden"></p>
+        <button id="next-btn" onclick="nextQuestion()">Next</button>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "What is the name of the main character in the book?", a: ["Jess Aarons", "Leslie Burke", "Bill Baldwin"], c: 0, exp: "The main character is Jess Aarons, who dreams of becoming an artist." },
+            { q: "What is the name of Jess's best friend?", a: ["Leslie Burke", "Mary Bell", "Jennifer Jones"], c: 0, exp: "Leslie Burke is Jess's best friend and the creator of Terabithia." },
+            { q: "What was the entrance to Terabithia?", a: ["Magic portal", "Rope bridge", "Wooden door"], c: 1, exp: "The rope bridge led to the imaginary kingdom." },
+            { q: "What superpower did Leslie imagine for herself?", a: ["Flying", "Mind reading", "Sword fighting"], c: 2, exp: "Leslie imagined herself as a brave warrior." },
+            { q: "Who inspired Jess's love for art?", a: ["Music teacher", "Sister", "Father"], c: 0, exp: "Miss Edmunds, the music teacher, supported Jess." },
+            { q: "What tragedy did Jess experience?", a: ["House fire", "Leslie's death", "Sister's disappearance"], c: 1, exp: "Leslie tragically died while crossing the river." },
+            { q: "What did Jess build after the tragedy?", a: ["Castle", "Real bridge", "Art gallery"], c: 1, exp: "Jess built a bridge in memory of Leslie." },
+            { q: "What animal did Leslie imagine in Terabithia?", a: ["Giant bird", "Mighty lion", "Magical unicorn"], c: 1, exp: "Leslie imagined a lion, symbolizing their kingdom." },
+            { q: "What did Terabithia symbolize?", a: ["Escape from reality", "Future", "Past"], c: 0, exp: "Terabithia was a world of fantasy and friendship." },
+            { q: "What was the name of Jess's younger sister?", a: ["May Belle", "Ellie", "Katie"], c: 0, exp: "May Belle was Jess's younger sister, to whom he entrusted Terabithia." }
+        ];
+        
+        let index = 0, score = 0, timeLeft;
+        let timerInterval;
+        const qEl = document.getElementById("question");
+        const aEl = document.getElementById("answers");
+        const expEl = document.getElementById("explanation");
+        const nextBtn = document.getElementById("next-btn");
+        const timerEl = document.getElementById("timer");
+
+        function startTimer() {
+            timeLeft = 30;
+            timerEl.textContent = `Time: ${timeLeft} sec.`;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = `Time: ${timeLeft} sec.`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    lockAnswers();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            clearInterval(timerInterval);
+            expEl.classList.add("hidden");
+            nextBtn.style.display = "none";
+
+            let qData = questions[index];
+            qEl.textContent = qData.q;
+            aEl.innerHTML = "";
+
+            qData.a.forEach((ans, i) => {
+                let btn = document.createElement("button");
+                btn.textContent = ans;
+                btn.classList.add("quiz-btn");
+                btn.onclick = () => checkAnswer(i, qData.c, qData.exp);
+                aEl.appendChild(btn);
+            });
+
+            startTimer();
+        }
+
+        function checkAnswer(i, correct, explanation) {
+            clearInterval(timerInterval);
+            let buttons = document.querySelectorAll(".quiz-btn");
+            buttons.forEach(btn => btn.disabled = true);
+            buttons[correct].style.background = "green";
+            if (i === correct) {
+                score++;
+            } else {
+                buttons[i].style.background = "red";
+            }
+            expEl.textContent = explanation;
+            expEl.classList.remove("hidden");
+            nextBtn.style.display = "block";
+        }
+
+        function lockAnswers() {
+            let buttons = document.querySelectorAll(".quiz-btn");
+            buttons.forEach(btn => btn.disabled = true);
+            expEl.textContent = "Time's up!";
+            expEl.classList.remove("hidden");
+            nextBtn.style.display = "block";
+        }
+
+        function nextQuestion() {
+            index++;
+            if (index < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            qEl.textContent = `You scored ${score} out of ${questions.length} points!`;
+            aEl.innerHTML = "";
+            expEl.classList.add("hidden");
+            nextBtn.remove();
+            timerEl.remove();
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
